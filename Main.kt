@@ -1,9 +1,16 @@
 
 fun main(){
-var aluno1 = Aluno("João", 20, "Masculino", listOf(8.0, 7.5, 9.0), 80.0)
-var aluno2 = Aluno("Maria", 22, "Feminino", listOf(6.0, 5.5, 7.0), 70.0)
-aluno1.calcularMedia()
-aluno1.calcularSituacao()
-aluno2.calcularMedia()
-aluno2.calcularSituacao()
+
+val alunos = mutableListOf<Aluno>()
+
+while (true){
+        val aluno = cadastrarAluno()
+        if (aluno.nome == "0") break
+        alunos.add(aluno)
+}
+
+println("\n--- Relatório de Alunos ---")
+for (aluno in alunos){
+    println(aluno.obterDetalhes())
+}
 }
