@@ -1,6 +1,7 @@
 class Aluno(var nome: String, 
 var idade: Int, 
-var sexo: String, 
+var sexo: String,
+var matricula: String? = null, 
 var nota: List<Double>, 
 var assiduidade: Double,
 var media: Double?= null,
@@ -23,4 +24,8 @@ var situacao: Boolean?= null) {
         }
     }
 
+    fun obterDetalhes(): String{
+        val situacaoString = if (situacao == true) "Aprovado" else "Reprovado"
+        return "Nome: $nome, Idade: $idade, Sexo: $sexo, Matrícula: ${matricula ?: "N/A"}, Situação: $situacaoString, Média: $media" 
+    }
 }
