@@ -1,11 +1,12 @@
 class Aluno(var nome: String, 
 var idade: Int, 
 var sexo: String,
-var matricula: String? = null, 
+var matricula: String = gerarMatricula(), 
 var nota: List<Double>, 
 var assiduidade: Double,
 var media: Double?= null,
 var situacao: Boolean?= null) {
+
     fun calcularMedia(){
         var soma = 0.0
         for (i in nota){
@@ -26,6 +27,15 @@ var situacao: Boolean?= null) {
 
     fun obterDetalhes(): String{
         val situacaoString = if (situacao == true) "Aprovado" else "Reprovado"
-        return "Nome: $nome, Idade: $idade, Sexo: $sexo, Matrícula: ${matricula ?: "N/A"}, Situação: $situacaoString, Média: $media" 
+        return "Nome: $nome, Idade: $idade, Sexo: $sexo, Matrícula: $matricula, Situação: $situacaoString, Média: $media" 
+    }
+
+    companion object {
+        private var contadorMatricula = 1
+        fun gerarMatricula(): String {
+            val matricula = contadorMatricula.toString().padStart(4, '0')
+            contadorMatricula++
+            return matricula
+        }
     }
 }
