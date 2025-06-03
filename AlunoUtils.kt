@@ -2,47 +2,40 @@ object AlunoUtils {
 
     val alunos = mutableListOf<Aluno>()
 
+    private fun lerString(msg: String): String {
+        print(msg)
+        return readLine() ?: ""
+    }
+
+    private fun lerInt(msg: String): Int {
+        print(msg)
+        return readLine()?.toIntOrNull() ?: 0
+    }
+
+    private fun lerDouble(msg: String): Double {
+        print(msg)
+        return readLine()?.toDoubleOrNull() ?: 0.0
+    }
+
     fun cadastrarAluno(): Aluno {
-        println("Digite o nome do aluno (ou 0 para voltar ao menu):")
-        val nome = readLine() ?: return alunoSentinela()
-        if (voltarAoMenu(nome)) return alunoSentinela()
+        val nome = lerString("Nome (ou 0 para voltar): ")
+        if (nome == "0") return alunoSentinela()
 
+        val idade = lerInt("Idade: ")
+        val sexo = lerString("Sexo: ")
+        val notas = lerString("Notas (separadas por vírgula): ")
+            .split(",").mapNotNull { it.trim().toDoubleOrNull() }
+        val assiduidade = lerDouble("Assiduidade (%): ")
 
-        println("Digite a idade do aluno:")
-        val idade = readLine()?.toIntOrNull() ?: return alunoSentinela()
-
-        println("Digite o sexo do aluno:")
-        val sexo = readLine() ?: return alunoSentinela()
-
-        println("Digite as notas do aluno (separadas por vírgula):")
-        val notasInput = readLine() ?: return alunoSentinela()
-        val notas = notasInput.split(",").mapNotNull { it.toDoubleOrNull() }
-
-        println("Digite a assiduidade do aluno (em porcentagem):")
-        val assiduidade = readLine()?.toDoubleOrNull() ?: return alunoSentinela()
-
-        val aluno = Aluno(
-            nome = nome,
-            idade = idade,
-            sexo = sexo,
-            nota = notas,
-            assiduidade = assiduidade
-        )
-        return aluno
+        return Aluno(nome, idade, sexo, nota = notas, assiduidade = assiduidade)
     }
 
-    private fun alunoSentinela(): Aluno {
-        return Aluno(
-            nome = "0",
-            idade = 0,
-            sexo = "",
-            matricula = Aluno.gerarMatricula(),
-            nota = emptyList(),
-            assiduidade = 0.0,
-            media = null,
-            situacao = null
-        )
-    }
+    private fun alunoSentinela() = Aluno(
+        nome = "0", idade = 0, sexo = "",
+        matricula = Aluno.gerarMatricula(),
+        nota = emptyList(), assiduidade = 0.0,
+        media = null, situacao = null
+    )
 
     fun mostrarMenu() {
         while (true) {
@@ -50,17 +43,14 @@ object AlunoUtils {
             println("1. Cadastrar aluno")
             println("2. Editar aluno")
             println("3. Remover aluno")
+            println("4. Listar alunos")
             println("0. Sair")
-            print("Escolha uma opção: ")
-
-            when (readLine()?.toIntOrNull() ?: -1) {
+            when (lerInt("Escolha uma opção: ")) {
                 1 -> cadastrarAlunoNoMenu()
                 2 -> editarAluno()
                 3 -> excluirAluno()
-                0 -> {
-                    println("Saindo... Até logo!")
-                    break
-                }
+                4 -> listarAluno()
+                0 -> { println("Saindo... Até logo!"); break }
                 else -> println("Opção inválida. Tente novamente.")
             }
         }
@@ -70,44 +60,34 @@ object AlunoUtils {
         val aluno = cadastrarAluno()
         if (aluno.nome != "0") {
             alunos.add(aluno)
-            println("Aluno cadastrado com sucesso!")
             aluno.calcularMedia()
             aluno.calcularSituacao()
+            println("Aluno cadastrado com sucesso!")
             listarAluno()
         }
     }
 
     private fun editarAluno() {
-        if (alunos.isEmpty()) { println("Nenhum aluno cadastrado ainda. Retornando ao menu..."); return }
+        if (alunos.isEmpty()) { println("Nenhum aluno cadastrado."); return }
         listarAluno()
-        println("Digite o nome do aluno para editar:(Ou 0 para voltar ao menu)")
-         val nomeBusca = readLine() ?: ""
-        if (voltarAoMenu(nomeBusca)) return
-        val aluno = alunos.find { it.nome.equals(nomeBusca, ignoreCase = true) }
+        val nomeBusca = lerString("Nome do aluno para editar (ou 0 para voltar): ")
+        if (nomeBusca == "0") return
+        val aluno = alunos.find { it.nome.equals(nomeBusca, true) }
         if (aluno != null) {
-            println("Digite o novo nome do aluno (Enter se quiser passar pro próximo):")
-            val novoNome = readLine()
-            if (!novoNome.isNullOrBlank()) aluno.nome = novoNome
+            val novoNome = lerString("Novo nome (Enter para manter): ")
+            if (novoNome.isNotBlank()) aluno.nome = novoNome
 
-            println("Digite a nova idade do aluno (Enter se quiser passar pro próximo):")
-            val novaIdade = readLine()
-            if (!novaIdade.isNullOrBlank()) aluno.idade = novaIdade.toIntOrNull() ?: aluno.idade
+            val novaIdade = lerString("Nova idade (Enter para manter): ")
+            if (novaIdade.isNotBlank()) aluno.idade = novaIdade.toIntOrNull() ?: aluno.idade
 
-            println("Digite o novo sexo do aluno (Enter se quiser passar pro próximo):")
-            val novoSexo = readLine()
-            if (!novoSexo.isNullOrBlank()) aluno.sexo = novoSexo
+            val novoSexo = lerString("Novo sexo (Enter para manter): ")
+            if (novoSexo.isNotBlank()) aluno.sexo = novoSexo
 
-            println("Digite as novas notas do aluno (separadas por vírgula, Enter se quiser passar pro próximo):")
-            val novasNotasInput = readLine()
-            if (!novasNotasInput.isNullOrBlank()) {
-                aluno.nota = novasNotasInput.split(",").mapNotNull { it.toDoubleOrNull() }
-            }
+            val novasNotas = lerString("Novas notas (separadas por vírgula, Enter para manter): ")
+            if (novasNotas.isNotBlank()) aluno.nota = novasNotas.split(",").mapNotNull { it.trim().toDoubleOrNull() }
 
-            println("Digite a nova assiduidade do aluno (em porcentagem, Enter se quiser passar pro próximo):")
-            val novaAssiduidadeInput = readLine()
-            if (!novaAssiduidadeInput.isNullOrBlank()) {
-                aluno.assiduidade = novaAssiduidadeInput.toDoubleOrNull() ?: aluno.assiduidade
-            }
+            val novaAssiduidade = lerString("Nova assiduidade (%), Enter para manter: ")
+            if (novaAssiduidade.isNotBlank()) aluno.assiduidade = novaAssiduidade.toDoubleOrNull() ?: aluno.assiduidade
 
             aluno.calcularMedia()
             aluno.calcularSituacao()
@@ -118,13 +98,12 @@ object AlunoUtils {
     }
 
     private fun excluirAluno() {
-        println("Digite o nome do aluno para excluir:(ou 0 para voltar ao menu)")
-         listarAluno()
-         println("Digite o nome do aluno:")
-        val nomeBusca = readLine() ?: ""
-        val alunoRemover = alunos.find { it.nome.equals(nomeBusca, ignoreCase = true) }
+        if (alunos.isEmpty()) { println("Nenhum aluno cadastrado."); return }
+        listarAluno()
+        val nomeBusca = lerString("Nome do aluno para excluir (ou 0 para voltar): ")
+        if (nomeBusca == "0") return
+        val alunoRemover = alunos.find { it.nome.equals(nomeBusca, true) }
         if (alunoRemover != null) {
-            if (voltarAoMenu(nomeBusca)) return
             alunos.remove(alunoRemover)
             println("Aluno $nomeBusca removido com sucesso!")
         } else {
@@ -135,13 +114,9 @@ object AlunoUtils {
     fun listarAluno() {
         if (alunos.isEmpty()) {
             println("Nenhum aluno cadastrado")
-        } else{
+        } else {
             println("\n=== LISTA DE ALUNOS ===")
             alunos.forEach { println(it.obterDetalhes()) }
         }
-    }
-
-    private fun voltarAoMenu(entrada: String): Boolean {
-        return entrada == "0"
     }
 }
