@@ -3,9 +3,10 @@ object AlunoUtils {
     val alunos = mutableListOf<Aluno>()
 
     fun cadastrarAluno(): Aluno {
-        println("Digite o nome do aluno (ou 'sair' para encerrar):")
+        println("Digite o nome do aluno (ou 0 para voltar ao menu):")
         val nome = readLine() ?: return alunoSentinela()
-        if (nome.lowercase() == "sair") return alunoSentinela()
+        if (voltarAoMenu(nome)) return alunoSentinela()
+
 
         println("Digite a idade do aluno:")
         val idade = readLine()?.toIntOrNull() ?: return alunoSentinela()
@@ -27,8 +28,6 @@ object AlunoUtils {
             nota = notas,
             assiduidade = assiduidade
         )
-
-        println("Aluno adicionado com sucesso!\n")
         return aluno
     }
 
@@ -37,7 +36,7 @@ object AlunoUtils {
             nome = "0",
             idade = 0,
             sexo = "",
-            matricula = null,
+            matricula = Aluno.gerarMatricula(),
             nota = emptyList(),
             assiduidade = 0.0,
             media = null,
@@ -72,12 +71,18 @@ object AlunoUtils {
         if (aluno.nome != "0") {
             alunos.add(aluno)
             println("Aluno cadastrado com sucesso!")
+            aluno.calcularMedia()
+            aluno.calcularSituacao()
+            listarAluno()
         }
     }
 
     private fun editarAluno() {
-        println("Digite o nome do aluno para editar:")
-        val nomeBusca = readLine() ?: ""
+        if (alunos.isEmpty()) { println("Nenhum aluno cadastrado ainda. Retornando ao menu..."); return }
+        listarAluno()
+        println("Digite o nome do aluno para editar:(Ou 0 para voltar ao menu)")
+         val nomeBusca = readLine() ?: ""
+        if (voltarAoMenu(nomeBusca)) return
         val aluno = alunos.find { it.nome.equals(nomeBusca, ignoreCase = true) }
         if (aluno != null) {
             println("Digite o novo nome do aluno (Enter se quiser passar pro próximo):")
@@ -113,14 +118,30 @@ object AlunoUtils {
     }
 
     private fun excluirAluno() {
-        println("Digite o nome do aluno para excluir:")
+        println("Digite o nome do aluno para excluir:(ou 0 para voltar ao menu)")
+         listarAluno()
+         println("Digite o nome do aluno:")
         val nomeBusca = readLine() ?: ""
         val alunoRemover = alunos.find { it.nome.equals(nomeBusca, ignoreCase = true) }
         if (alunoRemover != null) {
+            if (voltarAoMenu(nomeBusca)) return
             alunos.remove(alunoRemover)
             println("Aluno $nomeBusca removido com sucesso!")
         } else {
             println("Aluno não encontrado.")
         }
+    }
+
+    fun listarAluno() {
+        if (alunos.isEmpty()) {
+            println("Nenhum aluno cadastrado")
+        } else{
+            println("\n=== LISTA DE ALUNOS ===")
+            alunos.forEach { println(it.obterDetalhes()) }
+        }
+    }
+
+    private fun voltarAoMenu(entrada: String): Boolean {
+        return entrada == "0"
     }
 }
